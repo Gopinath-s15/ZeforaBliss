@@ -1,6 +1,6 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import ProductCard from "@/components/ProductCard";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import ProductCard from "@/components/shop/ProductCard";
 import { products } from "@/data/products";
 
 export default function ShopPage() {
@@ -16,7 +16,10 @@ export default function ShopPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {products.map((item) => (
-            <ProductCard key={item.id} product={item} />
+            <ProductCard
+              key={item.slug}
+              product={item}
+            />
           ))}
         </div>
 

@@ -5,11 +5,26 @@ import clientPromise from "@/lib/mongodb";
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
 
+    // Get body
+    const body = await req.json();
+    const { email, password } = body;
+
+    console.log("LOGIN ATTEMPT:", email);
+
+    // Validation
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email and password are required" },
+        { status: 400 }
+      );
+    }
+
+    // DB connection
     const client = await clientPromise;
     const db = client.db("zeforabliss");
 
+    // Find user
     const user = await db
       .collection("users")
       .findOne({ email });
@@ -21,6 +36,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // Compare password
     const isMatch = await bcrypt.compare(
       password,
       user.password
@@ -33,8 +49,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // JWT token
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
+      {
+        userId: user._id,
+        email: user.email,
+      },
       process.env.JWT_SECRET!,
       { expiresIn: "7d" }
     );
@@ -52,9 +72,13 @@ export async function POST(req: Request) {
       { status: 200 }
     );
 
-  } catch (error) {
+  } catch (error: any) {
+
+    // Print real error
+    console.error("LOGIN ERROR:", error);
+
     return NextResponse.json(
-      { error: "Login failed" },
+      { error: "Server error during login" },
       { status: 500 }
     );
   }
